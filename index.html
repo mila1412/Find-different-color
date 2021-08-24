@@ -13,7 +13,7 @@
 
     body {
       margin: 0;
-      font-family: 'Freckle Face', cursive;
+      /* font-family: 'Freckle Face', cursive; */
       font-family: 'New Tegomin', serif;
       background-image: url(./images/刺蝟2.jpg);
       background-repeat: no-repeat;
@@ -82,15 +82,6 @@
       cursor: pointer;
     }
 
-    #death {
-      position: absolute;
-      top: 85%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 250px;
-    }
-
-
     #clock {
       position: absolute;
       font-size: 35px;
@@ -132,7 +123,7 @@
     <span id="text-time"> 0</span>
     <span id="number">&emsp; score:<span id="text-score">0</span></span>
   </div>
-  <audio src="./death (2).mp3" id="death" controls></audio>
+  <audio src="./death (2).mp3" id="death"></audio>
 
   <script src="./jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
@@ -147,22 +138,37 @@
     const rand = (min, max) => {
       return Math.round(Math.random() * (max - min)) + min
     }
-    let num = rand(200, 201)
-    let num2 = rand(100, 101)
+    let num = rand(200, 250)
+    let num2 = rand(100, 150)
     let n = `background-color: rgb(${num},150,${num2})`
 
     const change = () => {
+      // 產生 255 個相同顏色的正方形
       for (let i = 0; i < 256; i++) {
         $('#container').append(`
         <div class="box" style="${n}; border: solid 1px lightgray;" >
         </div>
       `)
       }
+      
       let randnumber = Math.floor(Math.random() * 256)
-      const grid = $(`<div class="boxy" style="background-color: rgb(${num - 200}, 150, ${num2})" >
+      // 產生不同色塊
+      const grid = $(`<div class="boxy" style="background-color: rgb(${num - 210}, 150, ${num2})" >
         </div>`)
       $('.box').eq(randnumber).append(grid)
+      // console.log(num)
     }
+
+    $('#sound').click(function () {
+      if ($(this).attr('src') !== './images/sound.png') {
+        $(this).attr('src', './images/sound.png')
+        audio.pause()
+        audio.currentTime = 0
+      } else {
+        $(this).attr('src', './images/soundoff.png')
+        audio.play()
+      }
+    })
 
     $('#btn-start').click(function () {
       $('#btn-start').css('display', 'none')
@@ -170,8 +176,6 @@
       $('#sound').css('display', 'none')
       $('#big').css('background-image', 'none')
       // 把audio蓋在#big上面
-      $('#death').css('z-index', '2')
-
       change()
       $(this).attr('disabled', true)
       counter = 0
@@ -185,15 +189,12 @@
         $('#text-time').text(countdown)
         if (countdown <= 0) {
           clearInterval(timer)
-          // ***********
           audio.pause()
           audio.currentTime = 0
-          $('#death').css('z-index', '0')
           $('.box').remove()
-
+                   
           // 刷新grid的顏色 
           num -= counter * 20
-
           Swal.fire({
             icon: 'info',
             title: '殘念！差點就過關了(๑•́ ₃ •̀๑)',
@@ -202,6 +203,7 @@
           $('#btn-start').css('display', '')
           $('#rule').css('display', '')
           $('#sound').css('display', '')
+          $('#sound').attr('src', './images/sound.png')
           $('#big').css('background-image', 'url(./images/bg.jpg)')
           // $(this).attr('disabled', false)
         }
@@ -215,17 +217,6 @@
       }, 3000)
     })
 
-    $('#sound').click(function () {
-      if ($(this).attr('src') !== './images/sound.png') {
-        $(this).attr('src', './images/sound.png')
-        audio.pause()
-        audio.currentTime = 0
-      } else {
-        $(this).attr('src', './images/soundoff.png')
-        audio.play()
-      }
-    })
-
     $('#container').on('click', '.boxy', function () {
       score++
       $('#text-score').text(score)
@@ -234,16 +225,18 @@
       change()
       num += 20
 
+      // num 相差越近，hue-rotate 顏色越近
+      // 對全部的正方形(包括.boxy)
       $('.box').css("filter", `hue-rotate(${Math.floor(Math.random() * 360) + 1}deg)`)
-      $(this).css("background-color", `rgb(${num}, 150, ${num2})`)
+      // 無作用，$(this) 是已經點過的.boxy
+      // $(this).css("background-color", `rgb(${num}, 150, ${num2})`)
+      // console.log($(this))
 
-      if (counter == 12) {
+      if (counter === 12) {
         num -= counter * 20
         clearInterval(timer)
-        // ***********
         audio.pause()
         audio.currentTime = 0
-        $('#death').css('z-index', '0')
         $('.box').remove()
         Swal.fire({
           icon: 'success',
@@ -253,6 +246,7 @@
         $('#btn-start').css('display', '')
         $('#rule').css('display', '')
         $('#sound').css('display', '')
+        $('#sound').attr('src', './images/sound.png')
         $('#big').css('background-image', 'url(./images/bg.jpg)')
       }
     })
